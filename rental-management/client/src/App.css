@@ -40,6 +40,64 @@ body {
   width: 100%;
 }
 
+.properties-list {
+  width: 800px;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.user-properties {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 20px;
+}
+
+.property-card {
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 15px;
+  width: 150px;
+  height: auto;
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.user-properties p {
+  color: #041A4D;
+  font-weight: 500;
+  text-align: center;
+}
+
+.user-properties .description {
+  color: #387469;
+  font-weight: 400;
+  text-align: center;
+}
+
+.button-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  color: #0e2761;
+  margin-left: 10px;
+  padding: 5px;
+}
+
+.icon-button:hover {
+  color: #ffffff;
+}
+
+
 .card-header {
   color: #041A4D;
   letter-spacing: 2px;
@@ -47,6 +105,37 @@ body {
   font-size: 36px;
   text-align: center;
   line-height: 1.1em;
+}
+
+.rental-button{
+  background-color:#0e2761;}
+
+.rental-header{
+  display: flex;
+  flex-direction: column;
+  align-items: center;  
+}
+
+.react-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.react-modal-content {
+  position: relative;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 500px;
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .card-text {

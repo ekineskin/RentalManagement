@@ -16,6 +16,7 @@ contract RentalContract {
     struct Property {
         address owner; // Mülk sahibi
         string propertyType; // Mülk türü (ev-dükkan)
+        string publicAddress; // Mülk adresi
         address lease; // Kiralama sözleşmesi
     }
 
@@ -31,10 +32,11 @@ contract RentalContract {
     mapping (address => Property) public properties;
     mapping (address => Lease) public leases;
     Complaint[] public complaints;
+    address[] private propertyOwners;
 
     event UserRegistered(address indexed userAddress, string userType, string name, string surname);
     event ComplaintFiled(address indexed userAddress, string description);
-    event PropertyAdded(address indexed propertyAddress, string propertyType, address owner);
+    event PropertyAdded(address indexed propertyAddress, string propertyType, string publicAddress, address owner);
     event LeaseStarted(address indexed propertyAddress, uint256 startDate, uint256 endDate);
     event LeaseTerminated(address indexed propertyAddress, address indexed earlyTerminationRequestedBy);
 
@@ -45,12 +47,6 @@ contract RentalContract {
         users[msg.sender] = newUser;
     }
 
-    // Kullanıcı bilgilerini getir
-    function getUser() public view returns (string memory, string memory, string memory) {
-        User storage currentUser = users[msg.sender];
-        return (currentUser.userType, currentUser.name, currentUser.surname);
-    }
-
     // Şikayet oluşturma
     function fileComplaint(string memory _description) public {
         complaints.push(Complaint(msg.sender, _description));
@@ -58,10 +54,42 @@ contract RentalContract {
     }
 
     // Mülk oluşturma
-    function addProperty(address _propertyAddress, string memory _propertyType) public {
+    function addProperty(address _propertyAddress, string memory _propertyType, string memory _publicAddress) public {
         require(bytes(properties[_propertyAddress].propertyType).length == 0, "Property already exists");
-        properties[_propertyAddress] = Property(msg.sender, _propertyType, address(0));
-        emit PropertyAdded(_propertyAddress, _propertyType, msg.sender);
+
+        // Mülk sahibini ve mülkü ekle
+        propertyOwners.push(msg.sender);
+        properties[msg.sender] = Property(msg.sender, _propertyType, _publicAddress, address(0));
+        emit PropertyAdded(_propertyAddress, _propertyType, _publicAddress, msg.sender);
+    }
+
+    // Kullanıcının sahip olduğu tüm mülkleri getir
+    function getUserProperties() public view returns (Property[] memory) {
+        require(bytes(users[msg.sender].userType).length > 0, "User not registered");
+
+        // Kullanıcının sahip olduğu mülkleri tutacak dizi
+        Property[] memory userProperties = new Property[](propertyOwners.length);
+        uint256 counter = 0;
+
+        // Tüm mülk sahiplerini dön
+        for (uint256 i = 0; i < propertyOwners.length; i++) {
+            address propertyOwner = propertyOwners[i];
+
+            // Eğer mülk sahibi kullanıcı ise
+            if (propertyOwner == msg.sender) {
+                // Kullanıcının sahip olduğu mülkü listeye ekle
+                userProperties[counter] = properties[propertyOwner];
+                counter++;
+            }
+        }
+
+        // Gerçek boyutta bir dizi oluştur ve kullanıcının mülklerini kopyala
+        Property[] memory result = new Property[](counter);
+        for (uint256 i = 0; i < counter; i++) {
+            result[i] = userProperties[i];
+        }
+
+        return result;
     }
 
     // Kiralama

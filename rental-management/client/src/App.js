@@ -11,6 +11,9 @@ const App = () => {
   const [userType, setUserType] = useState('');
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
+  const [propertyType, setPropertyType] = useState('');
+  const [publicAddress, setPublicAddress] = useState('');
+  const [userProperties, setUserProperties] = useState([]);
 
   const CONTRACT_ADDRESS = configuration.networks['5777'].address;
   const CONTRACT_ABI = configuration.abi;
@@ -43,13 +46,42 @@ const App = () => {
     }
   };
 
-  const handleGetUser = async () => {
+  const handleAddProperty = async () => {
     try {
-      const user = await contract.methods.getUser().call({ from: account });
-
-      console.log('Tip: ' + user[0] + ' İsim: ' + user[1] + ' Soyisim: ' + user[2]);
+      if (!account) {
+        alert('Please connect your wallet first!');
+        return;
+      }
+  
+      if (userType !== 'owner') {
+        alert('Only property owners can add a property!');
+        return;
+      }
+  
+      if (!propertyType || !publicAddress) {
+        alert('Please fill out the form completely!');
+        return;
+      }
+  
+      // Add try-catch block to handle contract execution errors
+      try {
+        const transaction = await contract.methods.addProperty(account, propertyType, publicAddress);
+        console.log('Property added successfully!', transaction);
+      } catch (contractError) {
+        console.error('Error executing smart contract:', contractError);
+      }
     } catch (error) {
-      console.error('Hata:', error.message);
+      console.error('Error adding property:', error);
+    }
+  };
+  
+  const handleGetUserProperties = async () => {
+    try {
+      const userAddress = account;
+      const userProps = await contract.methods.getUserProperties().call({ from: userAddress });
+      setUserProperties(userProps);
+    } catch (error) {
+      console.error('Error getting user properties:', error.message);
     }
   };
 
@@ -72,8 +104,13 @@ const App = () => {
             account={account}
             userType={userType}
             name={name}
-            surname={surname}
-            handleGetUser={handleGetUser}
+            propertyType={propertyType}
+            setPropertType={setPropertyType}
+            publicAddress={publicAddress}
+            setPublicAddress={setPublicAddress}
+            handleAddProperty={handleAddProperty}
+            userProperties={userProperties}
+            handleGetUserProperties={handleGetUserProperties}
           />} />
         </Routes>
       </div>
